@@ -12,7 +12,8 @@
 ## This duplicates the above when networking workshop uses 2 VPCs
 - name: provision networking aws resources
   include_tasks: resources_{{workshop_type}}.yml
-  when: workshop_type == 'networking'
+  when:
+  - workshop_type == 'networking' or workshop_type == 'advanced_tower'
 
 - name: find ami for ansible control node
   ec2_ami_info:

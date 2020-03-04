@@ -1,6 +1,6 @@
 ---
 - name: Get the VPC ID for {{ ec2_name_prefix }}
-  ec2_vpc_net_facts:
+  ec2_vpc_net_info:
     filters:
       "tag:Name": "{{ ec2_name_prefix }}-vpc"
     region: "{{ ec2_region }}"
@@ -15,7 +15,7 @@
   when: vpc_net_facts['vpcs']|length > 0
   block:
     - name: Get the VPC ID 2 for {{ ec2_name_prefix }} (NETWORKING MODE)
-      ec2_vpc_net_facts:
+      ec2_vpc_net_info:
         filters:
           "tag:Name": "{{ ec2_name_prefix }}-vpc2"
         region: "{{ ec2_region }}"
@@ -343,3 +343,15 @@
         public_ip: "{{ item['public_ip'] }}"
         state: absent
       loop: "{{ ec2_eip_by_workshop_tag['addresses'] }}"
+
+- name: cleanup for Advanced Tower VPCs
+  when: workshop_type == "advanced_tower"
+  ec2_vpc_net:
+    name: "{{ ec2_name_prefix }}-{{ item }}"
+    cidr_block: "{{ ec2_subnet }}"
+    region: "{{ ec2_region }}"
+    state: absent
+  loop:
+  - node1
+  - node2
+  - node3

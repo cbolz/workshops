@@ -43,6 +43,18 @@
 - name: SET AZ ZONE TO FIRST AVAILABLE
   set_fact: ec2_az={{az_names.availability_zones[0].zone_name}}
 
+- name: SET AZ FOR TOWER CLUSTER NODE 1
+  set_fact: ec2_az_node1={{az_names.availability_zones[0].zone_name}}
+  when: workshop_type == "advanced_tower"
+
+- name: SET AZ FOR TOWER CLUSTER NODE 2
+  set_fact: ec2_az_node2={{az_names.availability_zones[1].zone_name}}
+  when: workshop_type == "advanced_tower"
+
+- name: SET AZ FOR TOWER CLUSTER NODE 3
+  set_fact: ec2_az_node3={{az_names.availability_zones[2].zone_name}}
+  when: workshop_type == "advanced_tower"
+
 - name: grab information about AWS user
   aws_caller_info:
     region: "{{ ec2_region }}"

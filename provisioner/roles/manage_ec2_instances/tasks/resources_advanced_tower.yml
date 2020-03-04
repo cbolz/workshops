@@ -1,0 +1,193 @@
+---
+- name: Create AWS VPC {{ ec2_name_prefix }}-tower-cluster (Tower Cluster)
+  ec2_vpc_net:
+    name: "{{ ec2_name_prefix }}-tower-cluster"
+    cidr_block: "{{ ec2_subnet2 }}"
+    region: "{{ ec2_region }}"
+    tags:
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+  register: create_cluster
+  when: ec2_vpc_cluster is undefined
+  until: create_cluster is not failed
+  retries: 5
+
+- name: Create EC2 security group for VPC named {{ ec2_name_prefix }}-sg-clsuter (Tower Cluster)
+  ec2_group:
+    name: "{{ ec2_name_prefix }}-sg-cluster"
+    description: all ports open
+    region: "{{ ec2_region }}"
+    vpc_id: "{{create_cluster.vpc.id}}"
+    tags:
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+    rules:
+      - proto: tcp
+        to_port: 443
+        from_port: 443
+        cidr_ip: 0.0.0.0/0
+      - proto: icmp
+        to_port: -1
+        from_port: -1
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        to_port: 80
+        from_port: 80
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        to_port: 22
+        from_port: 22
+        cidr_ip: 0.0.0.0/0
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+  when: ec2_security_group_cluster is undefined
+  register: create_sg_cluster
+  until: create_sg_cluster is not failed
+  retries: 5
+
+- name: Create subnet for {{ ec2_name_prefix }}-node1 (Tower Cluster Node 1)
+  ec2_vpc_subnet:
+    region: "{{ ec2_region }}"
+    az: "{{ ec2_az_node1 }}"
+    vpc_id: "{{create_cluster.vpc.id}}"
+    cidr: "172.17.1.0/24"
+    resource_tags:
+      Name: "{{ ec2_name_prefix }}-node1"
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+  register: create_subnet_node1
+  until: create_subnet_node1 is not failed
+  retries: 15
+  when: ec2_vpc_cluster is undefined
+
+- name: Create subnet for {{ ec2_name_prefix }}-node2 (Tower Cluster Node 2)
+  ec2_vpc_subnet:
+    region: "{{ ec2_region }}"
+    az: "{{ ec2_az_node2 }}"
+    vpc_id: "{{create_cluster.vpc.id}}"
+    cidr: "172.17.2.0/24"
+    resource_tags:
+      Name: "{{ ec2_name_prefix }}-node2"
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+  register: create_subnet_node2
+  until: create_subnet_node2 is not failed
+  retries: 15
+  when: ec2_vpc_cluster is undefined
+
+- name: Create subnet for {{ ec2_name_prefix }}-node3 (Tower Cluster Node 3)
+  ec2_vpc_subnet:
+    region: "{{ ec2_region }}"
+    az: "{{ ec2_az_node3 }}"
+    vpc_id: "{{create_cluster.vpc.id}}"
+    cidr: "172.17.3.0/24"
+    resource_tags:
+      Name: "{{ ec2_name_prefix }}-node3"
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+  register: create_subnet_node3
+  until: create_subnet_node3 is not failed
+  retries: 15
+  when: ec2_vpc_cluster is undefined
+
+- name: vpc internet gateway is present for {{ create_cluster.vpc.id }} (Tower Cluster)
+  ec2_vpc_igw:
+    region: "{{ ec2_region }}"
+    vpc_id: "{{ create_cluster.vpc.id }}"
+    tags:
+      name: "{{ ec2_name_prefix }}-cluster"
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "Total {{student_total}}"
+  register: igw_cluster
+  until: igw_cluster is not failed
+  retries: 15
+  when: ec2_vpc_cluster is undefined
+
+- name: vpc public subnet route table is present for {{ create_cluster.vpc.id }} (Tower Cluster Node 1)
+  ec2_vpc_route_table:
+    region: "{{ ec2_region }}"
+    vpc_id: "{{ create_cluster.vpc.id }}"
+    subnets:
+      - "{{ create_subnet_node1.subnet.id }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw_cluster.gateway_id }}"
+    tags:
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+  register: routetablenetworking
+  until: routetablenetworking is not failed
+  retries: 5
+  when: ec2_vpc_node1 is undefined
+
+- name: vpc public subnet route table is present for {{ create_cluster.vpc.id }} (Tower Cluster Node 2)
+  ec2_vpc_route_table:
+    region: "{{ ec2_region }}"
+    vpc_id: "{{ create_cluster.vpc.id }}"
+    subnets:
+      - "{{ create_subnet_node2.subnet.id }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw_cluster.gateway_id }}"
+    tags:
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+  register: routetablenetworking
+  until: routetablenetworking is not failed
+  retries: 5
+  when: ec2_vpc_node2 is undefined
+
+- name: vpc public subnet route table is present for {{ create_cluster.vpc.id }} (Tower Cluster Node 3)
+  ec2_vpc_route_table:
+    region: "{{ ec2_region }}"
+    vpc_id: "{{ create_cluster.vpc.id }}"
+    subnets:
+      - "{{ create_subnet_node3.subnet.id }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw_cluster.gateway_id }}"
+    tags:
+      Username: "{{ aws_user }}"
+      Info: "Username that provisioned this-> {{ aws_user }}"
+      Linklight: "This was provisioned through the linklight provisioner"
+      Students: "{{student_total}}"
+  register: routetablenetworking
+  until: routetablenetworking is not failed
+  retries: 5
+  when: ec2_vpc_node3 is undefined
+
+- name: set variables for instance creation dynamically since VPC was not supplied by user (Tower Nodes)
+  set_fact:
+    ec2_vpc_cluster: "{{ create_cluster.vpc.id }}"
+    ec2_vpc_subnet_id_node1: "{{ create_subnet_node1.subnet.id }}"
+    ec2_vpc_subnet_id_node2: "{{ create_subnet_node2.subnet.id }}"
+    ec2_vpc_subnet_id_node3: "{{ create_subnet_node3.subnet.id }}"
+    ec2_security_group_cluster: "{{ ec2_name_prefix }}-sg-cluster"
+  when: ec2_vpc_id2 is undefined
+
+- name: debugging all variables for ec2 instance creation VPC (Tower Nodes)
+  debug:
+    msg:
+      - "ec2_name_prefix: {{ec2_name_prefix}}"
+      - "ec2_vpc_cluster: {{ create_cluster.vpc.id }}"
+      - "ec2_vpc_subnet_id_node1: {{ ec2_vpc_subnet_id_node1 }}"
+      - "ec2_vpc_subnet_id_node2: {{ ec2_vpc_subnet_id_node2 }}"
+      - "ec2_vpc_subnet_id_node3: {{ ec2_vpc_subnet_id_node3 }}"
+      - "ec2_security_group_cluster: {{ ec2_name_prefix }}-sg-cluster"

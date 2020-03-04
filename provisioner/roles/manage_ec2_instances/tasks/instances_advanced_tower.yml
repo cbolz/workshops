@@ -215,9 +215,10 @@
 # Tower Node 1
 - name: Create EC2 instances for towernode1
   ec2:
+    zone: "{{ ec2_az_node1 }}"
     assign_public_ip: true
     key_name: "{{ ec2_name_prefix }}-key"
-    group: "{{ ec2_security_group }}"
+    group: "{{ ec2_security_group_cluster }}"
     instance_type: "{{ ec2_info[tower_type].size }}"
     image: "{{ towernode_ami.image_id }}"
     region: "{{ ec2_region }}"
@@ -225,7 +226,7 @@
     count_tag:
       Workshop_towernode1: "{{ec2_name_prefix}}-towernode1"
     wait: "{{ ec2_wait }}"
-    vpc_subnet_id: "{{ ec2_vpc_subnet_id }}"
+    vpc_subnet_id: "{{ ec2_vpc_subnet_id_node1 }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2
@@ -258,9 +259,10 @@
 # Tower Node 2
 - name: Create EC2 instances for towernode2
   ec2:
+    zone: "{{ ec2_az_node2 }}"
     assign_public_ip: true
     key_name: "{{ ec2_name_prefix }}-key"
-    group: "{{ ec2_security_group }}"
+    group: "{{ ec2_security_group_cluster }}"
     instance_type: "{{ ec2_info[tower_type].size }}"
     image: "{{ towernode_ami.image_id }}"
     region: "{{ ec2_region }}"
@@ -268,7 +270,7 @@
     count_tag:
       Workshop_towernode2: "{{ec2_name_prefix}}-towernode2"
     wait: "{{ ec2_wait }}"
-    vpc_subnet_id: "{{ ec2_vpc_subnet_id }}"
+    vpc_subnet_id: "{{ ec2_vpc_subnet_id_node2 }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2
@@ -301,9 +303,10 @@
 # Tower Node 3
 - name: Create EC2 instances for towernode3
   ec2:
+    zone: "{{ ec2_az_node3 }}"
     assign_public_ip: true
     key_name: "{{ ec2_name_prefix }}-key"
-    group: "{{ ec2_security_group }}"
+    group: "{{ ec2_security_group_cluster }}"
     instance_type: "{{ ec2_info[tower_type].size }}"
     image: "{{ towernode_ami.image_id }}"
     region: "{{ ec2_region }}"
@@ -311,7 +314,7 @@
     count_tag:
       Workshop_towernode3: "{{ec2_name_prefix}}-towernode3"
     wait: "{{ ec2_wait }}"
-    vpc_subnet_id: "{{ ec2_vpc_subnet_id }}"
+    vpc_subnet_id: "{{ ec2_vpc_subnet_id_node3 }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2

@@ -1,5 +1,5 @@
 ---
-- name: get value for DNS record
+- name: get value for DNS record {{ record }}
   route53:
     zone: "{{workshop_dns_zone}}"
     record: "{{ record }}"
@@ -7,7 +7,7 @@
     state: get
   register: value
 
-- name: remove DNS record
+- name: remove DNS record {{ record }}
   become: false
   route53:
     state: absent
