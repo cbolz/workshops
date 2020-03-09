@@ -164,6 +164,15 @@
     - common
   tags: control_node
 
+- name: Create private zone for internal DNS
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  roles:
+    - internal_dns
+  tags: control_node
+
 - name: CONFIGURE CONTROL NODE
   hosts:
   - control_nodes
@@ -190,6 +199,19 @@
         - dns_type is defined
         - dns_type == "aws"
   tags: control_node
+
+- name: Configure internal DNS
+  hosts: managed_nodes
+  #debugger: always
+  become: true
+  gather_facts: false
+  tasks:
+    - import_role:
+        name: internal_dns_records
+      vars:
+        record: "{{username}}-{{ ansible_nodename }}.{{ec2_name_prefix|lower}}.internal"
+        type: "A"
+        value: "{{ private_ip }}"
 
 - name: CONFIGURE ADVANCED TOWER CLUSTER DNS
   hosts: tower_nodes
