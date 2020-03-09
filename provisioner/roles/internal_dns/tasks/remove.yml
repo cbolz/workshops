@@ -1,0 +1,8 @@
+---
+- name: delete private zone
+  become: false
+  route53_zone:
+    zone: "{{ ec2_name_prefix }}.internal"
+    vpc_id: "{{ create_vpc.vpc.id }}"
+    vpc_region: "{{ ec2_region }}"
+    state: absent
