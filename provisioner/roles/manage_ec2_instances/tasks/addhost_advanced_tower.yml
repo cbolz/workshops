@@ -49,12 +49,6 @@
     - "{{ node4_node_facts.instances }}"
   changed_when: false
 
-- name: DEBUG
-  debug:
-    var: node1_node_facts.instances
-    
-
-
 - name: grab facts for towernode1 node
   ec2_instance_info:
     region: "{{ ec2_region }}"
