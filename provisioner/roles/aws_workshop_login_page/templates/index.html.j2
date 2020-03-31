@@ -281,7 +281,7 @@ $("document").ready(function(){
                 <p>These workshops are focused on automating Microsoft Windows.</p>
                 {% elif workshop_type in ['advanced_tower'] %}
                 <h2>Advanced Tower Workshop</h2>
-                <p>These workshops are foscussed on advanced AnsibleT´ Tower.</p>
+                <p>These workshops are foscussed on advanced Ansible Tower.</p>
                 {% endif %}
             </div>
         </div>
@@ -490,9 +490,6 @@ To login to the Ansible Tower UI use the following credentials:<br>
 <td>Tower Cluster Nodes:</td>
 {% for host in hostvars %}
 {% if "tower_nodes" in hostvars[host].group_names %}
-{{ host }}
-inventory hostname:
-{{ hostvars[host].inventory_hostname }}
 <td><a target=_blank href="https://student{{ number }}-{{ hostvars[host].ansible_nodename }}.{{ ec2_name_prefix }}.{{ workshop_dns_zone }}">https://student{{ number }}-{{ hostvars[host].ansible_nodename }}.{{ ec2_name_prefix }}.{{ workshop_dns_zone }}</a></td>
 {% endif %}
 {% endfor %}
