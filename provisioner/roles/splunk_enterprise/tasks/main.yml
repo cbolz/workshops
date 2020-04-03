@@ -59,7 +59,7 @@
 # tasks file for splunk_enterprise
 - name: "install epel"
   yum:
-    name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
+    name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm'
     state: present
 
 - name: "install pre-reqs"
