@@ -14,14 +14,6 @@
     - sudo
     - common
 
-- name: allow new ssh hosts
-  template:
-    src: 90-lab.conf.j2
-    dest: /etc/ssh/ssh_config.d/90-lab.conf
-    owner: root
-    group: root
-    mode: 0644
-
 - hostname:
     name: "{{short_name}}"
 

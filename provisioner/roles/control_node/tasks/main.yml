@@ -35,6 +35,13 @@
     owner: "{{ username }}"
     group: "{{ username }}"
 
+- name: Install ansible.cfg in root home directory
+  template:
+    src: ansible.cfg.j2
+    dest: "/root/.ansible.cfg"
+    owner: root
+    group: root
+
 - name: Install vimrc in home directory
   template:
     src: vimrc.j2

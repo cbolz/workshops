@@ -9,12 +9,10 @@
     name: python2-pip
     state: present
 
-- name: install ansible-tower-cli and requests
+- name: install AWX CLI
   pip:
-    name:
-      - ansible-tower-cli
-      - "requests==2.6.0"
-    state: latest
+    name: https://releases.ansible.com/ansible-tower/cli/ansible-tower-cli-latest.tar.gz
+    state: present
 
 - name: CHANGE TOWER BASE URL
   tower_settings:

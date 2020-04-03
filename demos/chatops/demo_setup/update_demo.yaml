@@ -156,11 +156,18 @@
           - Werkzeug
           - slackclient
           - urllib3
-          - ansible-tower-cli
           - requests
           - uwsgi
       become: true
       become_method: sudo
+
+    - name: enable AWX CLI repo
+      shell: dnf config-manager --add-repo https://releases.ansible.com/ansible-tower/cli/ansible-tower-cli-el8.repo
+
+    - name: install AWX CLI
+      dnf:
+        name: ansible-tower-cli
+        state: present
 
     - name: PERMIT 8888 AS A VALID PORT IN SELINUX
       seport:
