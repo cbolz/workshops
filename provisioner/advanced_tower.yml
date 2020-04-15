@@ -69,7 +69,7 @@
       mode: ug+rwX
       state: directory
 
-  - name: add user {{ username }} to {{ git_user }} group
+  - name: add student to {{ git_user }} group
     user:
       name: "{{ username }}"
       groups: "{{ git_user }}"  # group has been created with the user of same name
