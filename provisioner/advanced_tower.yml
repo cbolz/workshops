@@ -40,24 +40,34 @@
       state: present
       key: "{{ git_authorized_key['content'] | b64decode }}"
 
+  - name: define projects directory variable
+    set_fact:
+      projects_dir: "/home/{{ git_user }}/projects"
+
+  - name: Ensure projects directory exists and has the correct access rights
+    file:
+      path: "{{ projects_dir }}"
+      owner: "{{ git_user }}"
+      group: "{{ git_user }}"
+      recurse: yes
+      mode: ug+rwX
+      state: directory
+
   # If the directory exists, we don't want to blow away its
   # contents, because it's probably got valid repo data in it!
 
   - name: Check Git project directory for existence
     stat:
-      path: /home/{{ git_user }}/{{ git_project }}.git
-    register: project_dir
-
-  # If the directory exists, we don't want to blow away its
-  # contents, because it's probably got valid repo data in it!
+      path: "{{ projects_dir }}/{{ git_project }}.git"
+    register: git_proj_dir
 
   - name: Create empty {{ git_project }}.git bare repository if missing
-    command: git init --bare /home/{{ git_user }}/{{ git_project }}.git
-    when: not (project_dir.stat.isdir is defined and project_dir.stat.isdir)
+    command: git init --bare {{ projects_dir }}/{{ git_project }}.git
+    when: not (git_proj_dir.stat.isdir is defined and git_proj_dir.stat.isdir)
 
   - name: Ensure {{ git_project }}.git owned by git
     file:
-      path: /home/{{ git_user }}/{{ git_project }}.git
+      path: "{{ projects_dir }}/{{ git_project }}.git"
       owner: "{{ git_user }}"
       group: "{{ git_user }}"
       recurse: yes
