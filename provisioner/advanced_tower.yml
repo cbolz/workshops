@@ -26,7 +26,7 @@
   - name: make sure git-shell is in /etc/shells
     lineinfile:
       dest: /etc/shells
-      line: /usr/bin/shell
+      line: /usr/bin/git-shell
 
   - name: git user exists and uses git-shell
     user:
