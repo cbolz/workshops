@@ -6,14 +6,9 @@
 
   tasks:
 
-  - name: create SSH key for user {{ username }}
-    user:
-      name: "{{ username }}"
-      generate_ssh_key: true
-
   - name: slurp the newly created SSH key for later usage
     slurp:
-      src: /home/{{ username }}/.ssh/id_rsa.pub
+      src: /home/{{ ansible_user }}/.ssh/authorized_keys
     register: git_authorized_key
 
   - name: install some additional convenience software on the control node
