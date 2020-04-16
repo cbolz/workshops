@@ -39,3 +39,9 @@ workshop_internal_dns_zone: "ansibleworkshops.com"
 
 # Install Code Server
 code_server: true
+
+# git SSH repo on the controle node(s)
+# git user name
+git_user: git
+# name of an (empty) git project to create
+git_project: structured-content

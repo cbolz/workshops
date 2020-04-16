@@ -1,10 +1,76 @@
 ---
 - name: Advanced-Tower workshop_type
-  hosts: localhost
+  hosts: control_nodes
   become: true
   gather_facts: false
-  connection: local
+
   tasks:
-    - name: Print Summary Information
-      debug:
-        msg: "No specific tasks for {{workshop_type}}"
+
+  - name: slurp the newly created SSH key for later usage
+    slurp:
+      src: /home/{{ ansible_user }}/.ssh/authorized_keys
+    register: git_authorized_key
+
+  - name: install some additional convenience software on the control node
+    package:
+      name:
+      - tree
+      - git
+      state: latest
+
+  - name: make sure git-shell is in /etc/shells
+    lineinfile:
+      dest: /etc/shells
+      line: /usr/bin/git-shell
+
+  - name: git user exists and uses git-shell
+    user:
+      name: "{{ git_user }}"
+      comment: "Git server user"
+      shell: /usr/bin/git-shell
+
+  - name: add the newly created SSH key to authorized keys
+    authorized_key:
+      user: "{{ git_user }}"
+      state: present
+      key: "{{ git_authorized_key['content'] | b64decode }}"
+
+  - name: define projects directory variable
+    set_fact:
+      projects_dir: "/home/{{ git_user }}/projects"
+
+  - name: Ensure projects directory exists and has the correct access rights
+    file:
+      path: "{{ projects_dir }}"
+      owner: "{{ git_user }}"
+      group: "{{ git_user }}"
+      recurse: yes
+      mode: ug+rwX
+      state: directory
+
+  # If the directory exists, we don't want to blow away its
+  # contents, because it's probably got valid repo data in it!
+
+  - name: Check Git project directory for existence
+    stat:
+      path: "{{ projects_dir }}/{{ git_project }}.git"
+    register: git_proj_dir
+
+  - name: Create empty {{ git_project }}.git bare repository if missing
+    command: git init --bare {{ projects_dir }}/{{ git_project }}.git
+    when: not (git_proj_dir.stat.isdir is defined and git_proj_dir.stat.isdir)
+
+  - name: Ensure {{ git_project }}.git owned by git
+    file:
+      path: "{{ projects_dir }}/{{ git_project }}.git"
+      owner: "{{ git_user }}"
+      group: "{{ git_user }}"
+      recurse: yes
+      mode: ug+rwX
+      state: directory
+
+  - name: add student to {{ git_user }} group
+    user:
+      name: "{{ username }}"
+      groups: "{{ git_user }}"  # group has been created with the user of same name
+      append: true
